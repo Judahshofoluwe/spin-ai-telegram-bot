@@ -1,0 +1,325 @@
+{
+  "name": "SPIN AI",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "8c4389dd-c866-4dc3-86f7-9d387a471f13",
+      "name": "Telegram Trigger",
+      "webhookId": "7ac0ad2b-a79f-4c55-ba90-947b3013e66c",
+      "credentials": {
+        "telegramApi": {
+          "id": "f8r3KcUGqNMRnyg4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Telegram Trigger').item.json.message.text }}",
+        "options": {
+          "systemMessage": "=#Overview\nYou are SPIN AI, a helpful and intelligent general assistant. You have access to a web search tool (Tavily) which you MUST use to find current, accurate, and up-to-date information before responding to any question.\n\n#Rules:\n- When a user sends their first message or says \"hello\", \"hi\", or any greeting, always respond with: \"Hello! I am SPIN AI, how can I help you today?\"\n- ALWAYS search the web before answering questions about news, sports, weather, prices, events, or anything that may have changed recently.\n- For general knowledge questions, search first to verify your answer is accurate and current.\n- When you search, use specific and descriptive search queries to get the best results.\n- If the first search doesn't give enough information, search again with a different query.\n- Always base your answers on what you find from the search results, not just your training data.\n- If you cannot find  the anwser after searching , say so honestly and suggest where the user might find the information.\n-  Take note of todays date and time : {{ $now.format('YYYY-MM-DD') }}.\n- Only use the search tool when the question requires current or real-time information. For general knowledge questions, answer directly without searching.\n\nWhen you search:\n- Run only one search per question unless the first result is clearly insufficient\n- Summarize what you find in plain language — do not dump raw search results\n- If results are unclear or conflicting, say so honestly\n\n\nTone and style:\n- Be concise. Telegram is a chat app — keep replies short unless the user asks for detail\n- Be friendly and direct\n- Avoid bullet points for simple answers; use them only when listing multiple items makes sense\n- Never say \"As an AI language model...\" or similar phrases\n\n\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        480,
+        0
+      ],
+      "id": "d5696c70-95ed-49ed-8286-f5f21b85265a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.from.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        416
+      ],
+      "id": "c464d555-ae0c-4d09-80f0-c5cfba787515",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d6d0ef16-dba2-44cf-9232-d4801d5d35c7",
+      "name": "send message",
+      "webhookId": "dc6d671d-dde5-4ef5-9bfd-5fc127a193cf",
+      "credentials": {
+        "telegramApi": {
+          "id": "f8r3KcUGqNMRnyg4",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {
+          "max_results": 3
+        }
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        704,
+        304
+      ],
+      "id": "800070ad-5e50-4918-9241-72a04ca060cb",
+      "name": "tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "CSLKq11ijQLZm7Bc",
+          "name": "Tavily API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1R1Kin9vqkxm4cBFlChZtSwIhlXZEHKJSwIFSD9kFuOY",
+          "mode": "list",
+          "cachedResultName": "LOG",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R1Kin9vqkxm4cBFlChZtSwIhlXZEHKJSwIFSD9kFuOY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1R1Kin9vqkxm4cBFlChZtSwIhlXZEHKJSwIFSD9kFuOY/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Time stamp": "={{ $now }}",
+            "Chat ID": "={{ $('Telegram Trigger').item.json.message.from.id }}",
+            "User message": "={{ $('Telegram Trigger').item.json.message.text }}",
+            "AI reply": "={{ $('AI Agent').item.json.output }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Time stamp",
+              "displayName": "Time stamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Chat ID",
+              "displayName": "Chat ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "User message",
+              "displayName": "User message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "AI reply",
+              "displayName": "AI reply",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        976,
+        0
+      ],
+      "id": "13913be6-da42-4029-a969-21d58d361908",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "y93HYP6vYqr9WTgA",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        288
+      ],
+      "id": "423c18dc-5477-4db0-9794-7bbb99963c4f",
+      "name": "gpt-4.1-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "2jZK3hoagiySVtei",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        512,
+        320
+      ],
+      "id": "5a62378f-bdc9-4742-8ad1-8460645c2b5f",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "XjVQ2uJxkwiG26JR",
+          "name": "Postgres account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send message": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4.1-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "f29abfca-4ff7-4fae-b08d-2fb6b6362797",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4eb3fdbfec23d8f3d7dfb05cf4a99daf0f479b5dba694c6fd40560192cbafc93"
+  },
+  "nodeGroups": [],
+  "id": "oXpBiyjfkLzHhtdv",
+  "tags": []
+}
