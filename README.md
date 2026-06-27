@@ -1,4 +1,4 @@
-# SPIN AI — Telegram AI Assistant
+# | [SPIN AI](https://github.com/Judahshofoluwe/spin-ai-telegram-bot) | Telegram AI assistant with web search & persistent memory | n8n, OpenAI, Tavily, Supabase |
 
 A production-ready Telegram AI assistant with real-time web search 
 and persistent memory, built entirely with n8n.
